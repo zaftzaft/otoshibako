@@ -186,6 +186,8 @@ module.exports = (blessed, screen) ->
           else
             el.setContent print(name, item.bytes, item.modified)
 
+      screen.render()
+
   updateStatus()
   chdir()
 
