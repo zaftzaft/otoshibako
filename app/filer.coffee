@@ -1,8 +1,10 @@
-fs = require "fs"
-api = require "../lib/api"
+fs       = require "fs"
+api      = require "../lib/api"
 {expand} = require "../lib/paths"
+MultiSelect = require "./multi-select"
 
 module.exports = (blessed, screen) ->
+
   filemanager = blessed.FileManager {
     cwd: "."
     bg: "black"
@@ -37,6 +39,7 @@ module.exports = (blessed, screen) ->
   filemanager.key "~", -> filemanager.refresh "~", ->
   filemanager.key "S-d", -> filemanager.refresh expand("~/Desktop"), ->
 
+
   info = blessed.Box {
     width: "70%"
     height: "50%"
@@ -65,3 +68,11 @@ module.exports = (blessed, screen) ->
 
   screen.append filemanager
   screen.append info
+
+  multiSelect = new MultiSelect screen
+  multiSelect.hideFn = ->
+    filemanager.focus()
+  filemanager.key "space", ->
+    multiSelect.add filemanager.getFocusedItem()
+  filemanager.key "s", ->
+    multiSelect.show()

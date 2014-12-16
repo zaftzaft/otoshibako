@@ -1,3 +1,4 @@
+path = require "path"
 blessed = require "blessed"
 
 blessed.Node.prototype.query = (id) ->
@@ -9,6 +10,15 @@ blessed.Node.prototype.query = (id) ->
     else
       false
   return el
+
+blessed.FileManager::getFocusedItem = ->
+  item = @getItem(@selected)
+  value = item.content
+    .replace /\{[^{}]+\}/g, ""
+    .replace /@$/, ""
+  file = path.resolve @cwd, value
+  return file
+
 
 screen = blessed.Screen()
 screen.key ["q", "C-c"], -> process.exit 0
