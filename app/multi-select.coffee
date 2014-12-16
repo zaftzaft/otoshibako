@@ -1,6 +1,10 @@
-fs = require "fs"
-path     = require "path"
+fs      = require "fs"
+path    = require "path"
+async   = require "async"
 blessed = require "blessed"
+api     = require "../lib/api"
+
+bundle = (p) -> p.replace (new RegExp "^#{process.env.HOME}"), "~"
 
 class FileList
   constructor: ->
@@ -47,15 +51,23 @@ class MultiSelect
       top: 2
       left: 1
       right: 1
-      bottom: 1
+      bottom: 2
       bg: "black"
       selectedFg: "lightcyan"
       selectedBg: "lightblack"
       keys: true
       vi:   true
 
+    @status = blessed.Text
+      content: ""
+      left: 1
+      right: 1
+      bottom: 1
+      bg: "black"
+
     @box.append @text
     @box.append @list
+    @box.append @status
 
     @list.key "S-r", =>
       @files.clear()
@@ -67,9 +79,30 @@ class MultiSelect
       @screen.render()
 
     @list.key "u", =>
+      tasks = []
+      pwd = @screen.query("list").pwd
+      i = 0
+      @files.get().forEach (f) =>
+        tasks.push (cb) =>
+          @status.setContent "#{bundle f} -> #{pwd} (#{++i}/#{tasks.length})"
+          @screen.render()
+          api.filesPut pwd, f, (err, result) ->
+            return cb err if err
+            cb null
+
+      async.waterfall tasks, (err) =>
+        throw err if err
+        @status.setContent "Done."
+        @files.clear()
+        @set()
+        @screen.render()
+
+
 
     @list.key "d", =>
       @files.remove @list.selected
+      @set()
+      #@list.setItems @files.get()
       @screen.render()
 
 
@@ -79,11 +112,14 @@ class MultiSelect
 
   show: =>
     @list.clearItems()
-    @files.get().forEach (f) =>
-      @list.add f
+    @set()
     @box.show()
     @list.focus()
     @screen.render()
+
+  set: =>
+    @files.get().forEach (f) =>
+      @list.add bundle f
 
   add: (fp) =>
     @files.add fp
