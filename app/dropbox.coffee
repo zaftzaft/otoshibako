@@ -1,5 +1,5 @@
 api = require "../lib/api"
-ls = require "../lib/ls"
+ls  = require "../lib/ls"
 
 nameFilter = (name) ->
   name = name.replace "カメラアップロード", "camera upload"
@@ -60,6 +60,60 @@ module.exports = (blessed, screen) ->
   }
   list.id = "list"
   list.key "r", -> chdir pwd, false # Reload
+  list.key "m", -> #mkdir
+    disable = ->
+      screen.remove box
+      screen.render()
+
+    box = blessed.Box
+      width: "60%"
+      height: "30%"
+      top: "center"
+      left: "center"
+      bg: "black"
+      border:
+        type: "line"
+        fg: "yellow"
+        bg: "black"
+
+    text = blessed.Text
+      content: "Create Folder (c: Close)"
+      top: 1
+      left: 1
+      right: 1
+      bg: "yellow"
+
+    textbox = blessed.Textbox
+      height: 4
+      top: 4
+      left: 1
+      right: 1
+      bg: "blue"
+      border:
+        type: "line"
+        fg: "blue"
+        bg: "black"
+      key: true
+
+    box.key "c", disable
+
+    box.append text
+    box.append textbox
+    screen.append box
+    screen.render()
+
+    box.focus()
+
+    setTimeout ->
+      textbox.readEditor()
+    , 300
+    textbox.on "submit", ->
+      api.createFolder "#{pwd}/#{textbox.getValue()}", (err, result) ->
+        throw err if err
+        text.setContent "Created! (c: Close)"
+        #disable()
+
+
   list.on "select", (item, selected) ->
     if item.__is_dir
       chdir item.__path

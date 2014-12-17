@@ -92,6 +92,7 @@ API.move = (from, to, callback) ->
 
 
 API.createFolder = (name, callback) ->
+  name = fixDir name
   request.post
     url: "https://api.dropbox.com/1/fileops/create_folder"
     form:
