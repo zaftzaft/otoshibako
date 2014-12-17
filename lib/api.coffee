@@ -91,4 +91,18 @@ API.move = (from, to, callback) ->
     callback null, JSON.parse body
 
 
+API.createFolder = (name, callback) ->
+  request.post
+    url: "https://api.dropbox.com/1/fileops/create_folder"
+    form:
+      root: "dropbox"
+      path: name
+    oauth: genOAuth()
+  , (err, resp, body) ->
+    return callback err if err
+    if resp.statusCode isnt 200
+      return callback new Error body
+    callback null, JSON.parse body
+
+
 module.exports = API
