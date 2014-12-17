@@ -1,7 +1,7 @@
 path = require "path"
 blessed = require "blessed"
 
-blessed.Node.prototype.query = (id) ->
+blessed.Node::query = (id) ->
   el = null
   @children.some (a, i) ->
     if a.id is id
@@ -54,6 +54,8 @@ screen.key "h", ->
     " f: Dropbox <-> Filer"
     " ~: Jump to home dir (filer)"
     " D: Jump to Desktop dir"
+    " Space: File select (filer)"
+    " s: Show selected files (filer)"
     " C-e: Escape non ascii (dropbox)"
     " q: Quit"
   ].forEach (s, i) -> help.setLine i, s
