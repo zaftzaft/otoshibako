@@ -1,10 +1,13 @@
 {
   "name": "otoshibako",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Dropbox TUI App",
   "main": "index.coffee",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "otoshibako": "./bin/otoshibako"
   },
   "author": "@zaftzaft",
   "license": "MIT",
