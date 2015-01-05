@@ -53,9 +53,10 @@ screen.key "h", ->
   [
     " f: Dropbox <-> Filer"
     " ~: Jump to home dir (filer)"
-    " D: Jump to Desktop dir"
+    " D: Jump to Desktop dir (filer)"
     " Space: File select (filer)"
     " s: Show selected files (filer)"
+    " m: Make Dir (dropbox)"
     " C-e: Escape non ascii (dropbox)"
     " q: Quit"
   ].forEach (s, i) -> help.setLine i, s
