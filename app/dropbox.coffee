@@ -84,15 +84,15 @@ module.exports = (blessed, screen) ->
       bg: "yellow"
 
     textbox = blessed.Textbox
-      height: 4
-      top: 4
-      left: 1
-      right: 1
+      height: 1
+      top: 3
+      left: 2
+      right: 2
       bg: "blue"
-      border:
-        type: "line"
-        fg: "blue"
-        bg: "black"
+      #border:
+      #  type: "line"
+      #  fg: "blue"
+      #  bg: "black"
       key: true
 
     box.key "c", disable
@@ -110,7 +110,7 @@ module.exports = (blessed, screen) ->
     textbox.on "submit", ->
       api.createFolder "#{pwd}/#{textbox.getValue()}", (err, result) ->
         throw err if err
-        text.setContent "Created! (c: Close)"
+        text.setContent "Created!!!! (c: Close)"
         #disable()
 
 
