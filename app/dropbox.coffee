@@ -66,6 +66,7 @@ module.exports = (blessed, screen) ->
       screen.render()
 
     box = blessed.Box
+      label: "Create Folder"
       width: "60%"
       height: "30%"
       top: "center"
@@ -76,12 +77,12 @@ module.exports = (blessed, screen) ->
         fg: "yellow"
         bg: "black"
 
-    text = blessed.Text
-      content: "Create Folder (c: Close)"
-      top: 1
-      left: 1
-      right: 1
-      bg: "yellow"
+    #text = blessed.Text
+    #  content: "Create Folder (c: Close)"
+    #  top: 1
+    #  left: 1
+    #  right: 1
+    #  bg: "yellow"
 
     textbox = blessed.Textbox
       height: 1
@@ -97,7 +98,7 @@ module.exports = (blessed, screen) ->
 
     box.key "c", disable
 
-    box.append text
+    #box.append text
     box.append textbox
     screen.append box
     screen.render()
@@ -107,11 +108,13 @@ module.exports = (blessed, screen) ->
     setTimeout ->
       textbox.readEditor()
     , 300
+
     textbox.on "submit", ->
       api.createFolder "#{pwd}/#{textbox.getValue()}", (err, result) ->
         throw err if err
-        text.setContent "Created!!!! (c: Close)"
-        #disable()
+#        console.log result
+#        text.setContent "Created!!!! (c: Close)"
+        disable()
 
 
   list.on "select", (item, selected) ->

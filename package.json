@@ -1,6 +1,6 @@
 {
   "name": "otoshibako",
-  "version": "0.0.2",
+  "version": "0.0.21",
   "description": "Dropbox TUI App",
   "main": "index.coffee",
   "scripts": {
@@ -13,7 +13,7 @@
   "license": "MIT",
   "dependencies": {
     "async": "^0.9.0",
-    "blessed": "0.0.37",
+    "blessed": "0.0.43",
     "request": "^2.49.0"
   }
 }
