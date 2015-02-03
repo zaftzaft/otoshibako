@@ -38,6 +38,7 @@ help = blessed.Box
   left: "center"
   top: "center"
   bg: "black"
+  label: "Help"
   border:
     type: "line"
     fg: "red"
