@@ -1,5 +1,6 @@
 fs      = require "fs"
 path    = require "path"
+pjoin   = path.join
 request = require "request"
 Dropbox = require "./consumer"
 
@@ -41,10 +42,15 @@ API.files = (path, progressCallback, callback) ->
   path = path.slice 1 if path[0] is "/"
   progress = -> progressCallback ws.bytesWritten, clen
   clen = 1
-  ws = fs.createWriteStream path.split("/").pop()
+  filename = path.split("/").pop()
+
+  if process.env.PWD is pjoin(__dirname, "..")
+    filename = pjoin process.env.HOME, "Downloads", filename
+
+  ws = fs.createWriteStream filename
   ws.on "finish", ->
     do progress
-    callback null
+    callback null, filename
 
   request {
     url: "https://api-content.dropbox.com/1/files/auto/#{fixDir path}"

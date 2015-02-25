@@ -166,8 +166,10 @@ module.exports = (blessed, screen) ->
     api.files menu.item.__path, (w, l) ->
       pb.setProgress (w / l) * 100
       screen.render()
-    , ->
+    , (err, filename) ->
+      menu.setLine 3, "Downloaded (#{filename})"
       menu.remove pb
+      screen.render()
   menu.key "e", ->
     pathDvd = menu.item.__path.split "/"
     file = pathDvd.pop()
@@ -240,6 +242,7 @@ module.exports = (blessed, screen) ->
           if item.is_dir
             el.style.fg = "magenta"
             el.setContent "#{name}/"
+            #el.style.selected = fg: "blue"
           else
             el.setContent print(name, item.bytes, item.modified)
 
