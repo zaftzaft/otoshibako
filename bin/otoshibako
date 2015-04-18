@@ -1,1 +1,2 @@
-coffee ./index.coffee
+#!/usr/bin/env coffee
+require "../"

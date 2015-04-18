@@ -6,9 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "bin": {
-    "otoshibako": "./bin/otoshibako"
-  },
+  "bin": "bin/otoshibako",
   "author": "@zaftzaft",
   "license": "MIT",
   "dependencies": {
