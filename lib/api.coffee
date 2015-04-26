@@ -38,27 +38,24 @@ API.metadata = (path, callback) ->
     callback null, JSON.parse body
 
 
-API.files = (path, progressCallback, callback) ->
-  path = path.slice 1 if path[0] is "/"
+API.files = (remote, local, progressCallback, callback) ->
+  remote = remote.slice 1 if remote[0] is "/"
   progress = -> progressCallback ws.bytesWritten, clen
   clen = 1
-  filename = path.split("/").pop()
+  filename = remote.split("/").pop()
 
-  if process.env.PWD is pjoin(__dirname, "..")
-    filename = pjoin process.env.HOME, "Downloads", filename
-
-  ws = fs.createWriteStream filename
+  ws = fs.createWriteStream path.join(local, filename)
   ws.on "finish", ->
     do progress
-    callback null, filename
+    callback null, path.join(local, filename)
 
   request {
-    url: "https://api-content.dropbox.com/1/files/auto/#{fixDir path}"
+    url: "https://api-content.dropbox.com/1/files/auto/#{fixDir remote}"
     oauth: genOAuth()
   }
     .on "response", (resp) ->
       if resp.statusCode is 401
-        return callback new Error path
+        return callback new Error remote
       clen = +resp.headers["content-length"]
     .on "data", progress
     .pipe ws
