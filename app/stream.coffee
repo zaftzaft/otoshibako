@@ -1,4 +1,3 @@
-# TODO: rename to stream
 api = require "../lib/api"
 QueueLimit = require "../lib/ql"
 

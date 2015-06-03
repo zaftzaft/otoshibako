@@ -9,6 +9,7 @@ module.exports = (Otoshibako) ->
       height: "80%"
       left: "center"
       top: "center"
+      bg: "black"
       border:
         type: "line"
         fg: "blue"
