@@ -15,7 +15,12 @@ module.exports = (Otoshibako) ->
         fg: "blue"
         bg: "black"
 
-    el.setContent data.path
+    Otoshibako.screen.append el
+
+    #el.setContent data.path
+    el.setLine 0, data.path
+    el.setLine 1, Otoshibako.byteFormat data.bytes
+    el.setLine 2, Otoshibako.dateFormat data.modified
     el.append Otoshibako.blessed.Text
       content: "c: Close, d: Download, e: Rename, x: Delete"
       left: 1
@@ -28,6 +33,8 @@ module.exports = (Otoshibako) ->
       Otoshibako.download data.path, "/home/kouta/Desktop/"
       Otoshibako.goto "stream"
     el.key "e", -> rename Otoshibako, data.path
+
+    Otoshibako.screen.render()
     return el
 
 
@@ -98,9 +105,10 @@ module.exports = (Otoshibako) ->
     if item.data.is_dir
       Otoshibako.goto "dropbox#{item.data.path}"
     else
+      menu item.data
       #list.append menu item.data
-      Otoshibako.screen.append menu item.data
-      Otoshibako.screen.render()
+      #Otoshibako.screen.append menu item.data
+      #Otoshibako.screen.render()
 
 
   Otoshibako.router.on "dropbox(.*)", (url) ->
