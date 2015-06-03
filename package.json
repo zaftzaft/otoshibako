@@ -1,6 +1,6 @@
 {
   "name": "otoshibako",
-  "version": "0.0.21",
+  "version": "0.1.1",
   "description": "Dropbox TUI App",
   "main": "index.coffee",
   "scripts": {
@@ -8,6 +8,7 @@
   },
   "bin": "bin/otoshibako",
   "author": "@zaftzaft",
+  "repository": "https://github.com/zaftzaft/otoshibako.git",
   "license": "MIT",
   "dependencies": {
     "async": "^0.9.0",
