@@ -1,15 +1,7 @@
 path = require "path"
 blessed = require "blessed"
-
-blessed.Node::query = (id) ->
-  el = null
-  @children.some (a, i) ->
-    if a.id is id
-      el = a
-      true
-    else
-      false
-  return el
+director = require "director"
+Exchanger = require "./exchanger"
 
 blessed.FileManager::getFocusedItem = ->
   item = @getItem(@selected)
@@ -19,73 +11,56 @@ blessed.FileManager::getFocusedItem = ->
   file = path.resolve @cwd, value
   return file
 
+Otoshibako = {}
+Otoshibako.$ = {}
+Otoshibako.router = new director.cli.Router()
+Otoshibako.location = null
+Otoshibako.pwd = null # Dropbox Current Dir
+Otoshibako.goto = (param) ->
+  Otoshibako.location = param
+  Otoshibako.router.dispatch "on", param
+Otoshibako.back = -> Otoshibako.goto Otoshibako.exchanger.previous
+Otoshibako.exchanger = new Exchanger()
+Otoshibako.blessed = blessed
+Otoshibako.key = (el, type, handle) ->
+  el.key type, -> handle() if el.focused
+  return Otoshibako
 
-screen = blessed.Screen()
+screen = blessed.screen
+  fullUnicode: true
 screen.key ["q", "C-c"], -> process.exit 0
 
-status = blessed.Element {
+Otoshibako.screen = screen
+
+Otoshibako.$.status = blessed.Box
   bg: "blue"
   top: 0
   width: "100%"
   height: 1
-  content: ""
-}
-status.id = "status"
+screen.append Otoshibako.$.status
 
-help = blessed.Box
-  width: "70%"
-  height: "70%"
-  left: "center"
-  top: "center"
-  bg: "black"
-  label: "Help"
-  border:
-    type: "line"
-    fg: "red"
-    bg: "black"
-help.id = "hide"
-help.hide()
+require("./print")(Otoshibako)
+require("./stream")(Otoshibako)
+require("./dropbox")(Otoshibako)
+require("./filer")(Otoshibako)
+require("./multi-select")(Otoshibako)
 
-help.key ["c", "escape"], ->
-  help.hide()
-  screen.render()
+# Overlay
+require("./help")(Otoshibako)
 
-screen.key "h", ->
-  [
-    " f: Dropbox <-> Filer"
-    " ~: Jump to home dir (filer)"
-    " D: Jump to Desktop dir (filer)"
-    " Space: File select (filer)"
-    " s: Show selected files (filer)"
-    " m: Make Dir (dropbox)"
-    " C-e: Escape non ascii (dropbox)"
-    " q: Quit"
-  ].forEach (s, i) -> help.setLine i, s
-  help.show()
-  help.focus()
-  screen.render()
-
-screen.append status
-
-require("./dropbox")(blessed, screen)
-require("./filer")(blessed, screen)
-
-screen.append help
-
-list = screen.query "list"
-filemanager = screen.query "filemanager"
 flg = true
 screen.key "f", ->
+  unless Otoshibako.$.dropbox.focused or Otoshibako.$.filer.focused
+    return null
+
   if flg = !flg
-    filemanager.hide()
-    list.show()
-    list.focus()
+    Otoshibako.goto "dropbox"
   else
-    list.hide()
-    filemanager.show()
-    filemanager.focus()
+    Otoshibako.goto "filer"
 
-  screen.render()
-
+screen.key "s", ->
+  unless Otoshibako.$.dropbox.focused or Otoshibako.$.filer.focused
+    return null
+  Otoshibako.goto "stream"
 
 screen.render()

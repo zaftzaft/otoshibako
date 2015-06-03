@@ -1,8 +1,6 @@
-fs      = require "fs"
-path    = require "path"
-async   = require "async"
-blessed = require "blessed"
-api     = require "../lib/api"
+fs    = require "fs"
+path  = require "path"
+api   = require "../lib/api"
 
 bundle = (p) -> p.replace (new RegExp "^#{process.env.HOME}"), "~"
 
@@ -24,104 +22,59 @@ class FileList
 
   get: => @files
 
-class MultiSelect
-  constructor: (@screen) ->
-    @files = new FileList
 
-    @box = blessed.Box
-      width:  "80%"
-      height: "80%"
-      left:   "center"
-      top:    "center"
-      bg:     "black"
-      border:
-        type: "line"
-        fg:   "cyan"
-        bg:   "black"
+module.exports = (Otoshibako) ->
+  files = new FileList
+  Otoshibako.multiSelect = {
+    add: (fp) -> files.add fp
+  }
 
-    @text = blessed.Text
-      content: "R: Reset, c: Close, u: Upload All, d: Delete from list"
-      bg: "cyan"
-      top: 1
-      left: 1
-      right: 1
-      height: 1
+  show = ->
+    list.clearItems()
+    files.get().forEach (f) -> list.add bundle f
+    Otoshibako.screen.render()
 
-    @list = blessed.List
-      top: 2
-      left: 1
-      right: 1
-      bottom: 2
-      bg: "black"
-      selectedFg: "lightcyan"
-      selectedBg: "lightblack"
-      keys: true
-      vi:   true
+  box = Otoshibako.blessed.Box
+    top: 1
+    bg: "black"
 
-    @status = blessed.Text
-      content: ""
-      left: 1
-      right: 1
-      bottom: 1
-      bg: "black"
+  text = Otoshibako.blessed.Text
+    content: "R: Reset, c: Close, u: Upload All, x: Delete from list"
+    bg: "cyan"
+    top: 0
+    left: 1
+    right: 1
+    height: 1
 
-    @box.append @text
-    @box.append @list
-    @box.append @status
+  list = Otoshibako.blessed.List
+    top: 1
+    left: 1
+    right: 1
+    bottom: 2
+    bg: "black"
+    selectedFg: "lightcyan"
+    selectedBg: "lightblack"
+    keys: true
+    vi:   true
 
-    @list.key "S-r", =>
-      @files.clear()
-      @screen.render()
+  Otoshibako
+    .key list, "S-r", -> files.clear(); show()
+    .key list, "c", -> Otoshibako.back()
+    .key list, "u", ->
+      files.get().forEach (f) ->
+        Otoshibako.upload f, Otoshibako.pwd
+    .key list, "x", ->
+      files.remove list.selected
+      show()
 
-    @list.key "c", =>
-      @box.hide()
-      @hideFn?()
-      @screen.render()
+  box.append text
+  box.append list
 
-    @list.key "u", =>
-      tasks = []
-      pwd = @screen.query("list").pwd
-      i = 0
-      @files.get().forEach (f) =>
-        tasks.push (cb) =>
-          @status.setContent "#{bundle f} -> #{pwd} (#{++i}/#{tasks.length})"
-          @screen.render()
-          api.filesPut pwd, f, (err, result) ->
-            return cb err if err
-            cb null
+  Otoshibako.router.on "multiSelect", ->
+    Otoshibako.exchanger.show "multiSelect"
+    show()
+    list.focus()
+    Otoshibako.screen.render()
 
-      async.waterfall tasks, (err) =>
-        throw err if err
-        @status.setContent "Done."
-        @files.clear()
-        @set()
-        @screen.render()
-
-
-
-    @list.key "d", =>
-      @files.remove @list.selected
-      @set()
-      #@list.setItems @files.get()
-      @screen.render()
-
-
-    @box.hide()
-
-    @screen.append @box
-
-  show: =>
-    @list.clearItems()
-    @set()
-    @box.show()
-    @list.focus()
-    @screen.render()
-
-  set: =>
-    @files.get().forEach (f) =>
-      @list.add bundle f
-
-  add: (fp) =>
-    @files.add fp
-
-module.exports = MultiSelect
+  Otoshibako.exchanger.add "multiSelect", box
+  Otoshibako.screen.append box

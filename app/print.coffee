@@ -27,13 +27,16 @@ dateFormat = (modified) ->
   return "#{dy}/#{dm}/#{da} #{dh}:#{di}:#{ds}"
 
 module.exports = (Otoshibako) ->
+  Otoshibako.byteFormat = byteFormat
+  Otoshibako.dateFormat = dateFormat
+
   Otoshibako.print = (name, bytes, modified) ->
     byte = byteFormat bytes
     byte = new Array(8 - byte.length + 1).join(" ") + byte
     date = dateFormat modified
     right = "#{byte} #{date}"
     w = Otoshibako.screen.width - right.length
-    len = eaw.length name
+    len = eaw.length name.replace /\{\/?[\w\-]+\}/g, ""
     if len > w
       name = "#{name.slice(0, w - 2)}.."
     else

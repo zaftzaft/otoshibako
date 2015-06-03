@@ -1,11 +1,38 @@
 fs       = require "fs"
-api      = require "../lib/api"
 {expand} = require "../lib/paths"
-MultiSelect = require "./multi-select"
 
-module.exports = (blessed, screen) ->
+module.exports = (Otoshibako) ->
+  menu = (parent, data) ->
+    parent = Otoshibako.screen
+    el = Otoshibako.blessed.Box
+      width: "80%"
+      height: "80%"
+      left: "center"
+      top: "center"
+      border:
+        type: "line"
+        fg: "blue"
+        bg: "black"
 
-  filemanager = blessed.FileManager {
+    parent.append el
+
+    fs.lstat data, (err, st) ->
+      #el.file = file
+      el.setLine 0, "P: #{data}"
+      el.setLine 1, "CT: #{Otoshibako.dateFormat st.ctime}"
+      el.setLine 2, "MT: #{Otoshibako.dateFormat st.mtime}"
+      el.setLine 3, "S: #{st.size} (#{Otoshibako.byteFormat st.size})"
+      el.setLine 4, "c: Close, u: Upload"
+      Otoshibako.screen.render()
+
+    el.focus()
+    el.key "c", -> el.detach(); Otoshibako.screen.render()
+    el.key "u", ->
+      Otoshibako.upload data, Otoshibako.pwd
+      Otoshibako.goto "stream"
+    return el
+
+  filemanager = Otoshibako.blessed.FileManager
     cwd: "."
     bg: "black"
     top: 1
@@ -13,66 +40,24 @@ module.exports = (blessed, screen) ->
     selectedBg: "lightblack"
     keys: true
     vi: true
-  }
-  filemanager.id = "filemanager"
-  filemanager.hide()
-  filemanager.refresh()
-  filemanager.on "cd", (file, cwd) ->
   filemanager.on "file", (file) ->
-    fs.lstat file, (err, st) ->
-      info.file = file
-      info.setLine 0, "P: #{file}"
-      info.setLine 1, "CT: #{st.ctime}"
-      info.setLine 2, "MT: #{st.mtime}"
-      info.setLine 3, "S: #{st.size}"
-      info.setLine 4, "" # Upload mes
-      info.append blessed.Text
-        content: "c: Close, u: Upload"
-        left: 1
-        right: 1
-        bottom: 1
-        bg: "blue"
-      info.show()
-      info.focus()
-      screen.render()
+    menu filemanager, file
 
-  filemanager.key "~", -> filemanager.refresh "~", ->
-  filemanager.key "S-d", -> filemanager.refresh expand("~/Desktop"), ->
+  Otoshibako.$.filer = filemanager
 
+  Otoshibako
+    .key filemanager, "~",  -> filemanager.refresh "~", ->
+    .key filemanager, "S-d", -> filemanager.refresh expand("~/Desktop"), ->
+    .key filemanager, "m", -> Otoshibako.goto "multiSelect"
+    .key filemanager, "space", ->
+      Otoshibako.multiSelect.add filemanager.getFocusedItem()
 
-  info = blessed.Box {
-    width: "70%"
-    height: "50%"
-    left: "center"
-    top: "center"
-    bg: "black"
-    border:
-      type: "line"
-      fg: "blue"
-      bg: "black"
-  }
-  info.hide()
-  info.key "c", ->
-    info.hide()
-    screen.render()
-  info.key "u", ->
-    pwd = screen.query("list").pwd
-    info.setLine 4, "uploading #{info.file} -> #{pwd}"
-    # Upload
-    api.filesPut pwd, info.file, (err, result) ->
-      throw err if err
-      info.setLine 4, "finish"
-      screen.render()
-    screen.render()
+  filemanager.refresh()
 
+  Otoshibako.router.on "filer", ->
+    Otoshibako.exchanger.show "filer"
+    Otoshibako.screen.render()
 
-  screen.append filemanager
-  screen.append info
+  Otoshibako.exchanger.add "filer", filemanager
 
-  multiSelect = new MultiSelect screen
-  multiSelect.hideFn = ->
-    filemanager.focus()
-  filemanager.key "space", ->
-    multiSelect.add filemanager.getFocusedItem()
-  filemanager.key "s", ->
-    multiSelect.show()
+  Otoshibako.screen.append filemanager
