@@ -38,6 +38,17 @@ API.metadata = (path, callback) ->
     callback null, JSON.parse body
 
 
+API.delta = (options = {}, callback) ->
+  request.post
+    url: "https://api.dropbox.com/1/delta"
+    oauth: genOAuth()
+  , (err, resp, body) ->
+    return callback err if err
+    if resp.statusCode is 401
+      return callback new Error body
+    callback null, JSON.parse body
+
+
 API.files = (remote, local, progressCallback, callback) ->
   remote = remote.slice 1 if remote[0] is "/"
   progress = -> progressCallback ws.bytesWritten, clen
