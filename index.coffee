@@ -3,6 +3,12 @@ path = require "path"
 auth = require "./lib/auth"
 paths = require "./lib/paths"
 
+debug = false
+
+if process.argv[2] is "debug"
+  debug = true
+  console.log "*** Debug Mode ***"
+
 # Check Dir
 base = paths.base
 token = paths.token
