@@ -7,7 +7,7 @@ expand = (p) ->
   else
     home = process.env.HOME
 
-  return path.join p.replace(/^~/, process.env.HOME)
+  return path.join p.replace(/^~/, home)
 
 
 if ~os.platform().indexOf "win"
