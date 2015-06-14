@@ -1,7 +1,8 @@
-readline = require "readline"
-qs       = require "querystring"
-request  = require "request"
-Dropbox  = require "./consumer"
+readline     = require "readline"
+qs           = require "querystring"
+request      = require "request"
+Dropbox      = require "./consumer"
+urlShortener = require "./url-shortener"
 
 getAccessToken = (oauth, callback) ->
   request.post
@@ -28,12 +29,29 @@ module.exports = (callback) ->
   , (err, resp, body) ->
     return callback err if err
     o = qs.parse body
-    console.log "https://www.dropbox.com/1/oauth/authorize?#{
+
+    authUrl =  "https://www.dropbox.com/1/oauth/authorize?#{
       qs.stringify oauth_token: o.oauth_token
     }"
+    console.log authUrl
+
     rl = readline.createInterface
       input:  process.stdin
       output: process.stdout
-    rl.question "And press enter After authentication", ->
-      getAccessToken o, callback
-      rl.close()
+    rl.setPrompt "> "
+
+    console.log "And press enter After authentication"
+    console.log "s : Google URL Shortener"
+
+    rl.on "line", (cmd) ->
+      if cmd is ""
+        getAccessToken o, callback
+        rl.close()
+        return
+      else if cmd is "s"
+        urlShortener authUrl, (err, sUrl) ->
+          return callback err if err
+          console.log sUrl
+          rl.prompt()
+      else
+        rl.prompt()
