@@ -3,6 +3,7 @@ path    = require "path"
 pjoin   = path.join
 request = require "request"
 Dropbox = require "./consumer"
+paths   = require "./paths"
 
 fixDir = (cp) ->
   cp
@@ -11,7 +12,7 @@ fixDir = (cp) ->
     .join "/"
 
 genOAuth = do ->
-  p = "#{process.env.HOME}/.otoshibako/token"
+  p = paths.token
   token = fs.readFileSync p, "utf8"
   token = JSON.parse token
   return ->
