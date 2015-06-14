@@ -41,7 +41,7 @@ module.exports = (callback) ->
     rl.setPrompt "> "
 
     console.log "And press enter After authentication"
-    console.log "s : Google URL Shortener"
+    console.log "s : ux.nu URL Shortener"
 
     rl.on "line", (cmd) ->
       if cmd is ""
