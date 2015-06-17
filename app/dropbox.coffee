@@ -2,6 +2,7 @@ ls  = require "../lib/ls"
 mkdir = require "./mkdir"
 rename = require "./rename"
 deletef = require "./delete"
+{expand} = require "../lib/paths"
 
 module.exports = (Otoshibako) ->
   menu = (data) ->
@@ -33,7 +34,7 @@ module.exports = (Otoshibako) ->
     Otoshibako
       .key el, "c", -> el.detach(); Otoshibako.screen.render()
       .key el, "d", ->
-        Otoshibako.download data.path, "/home/kouta/Desktop/"
+        Otoshibako.download data.path, expand("~/Desktop")
         Otoshibako.goto "stream"
       .key el, "e", -> rename Otoshibako, data.path
       .key el, "x", -> deletef Otoshibako, data
