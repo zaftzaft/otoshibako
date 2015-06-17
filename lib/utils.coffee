@@ -34,7 +34,12 @@ printFormat = (width, name, bytes, modified) ->
     date = dateFormat modified
     right = "#{byte} #{date}"
     w = width - right.length
-    len = eaw.length name.replace /\{\/?[\w\-]+\}/g, ""
+
+    len = eaw.length(name
+      .replace /\{\/?[\w\-]+\}/g, ""
+      .replace /\x1b\[[\d;]*m/g, ""
+    )
+
     if len > w
       name = "#{name.slice(0, w - 2)}.."
     else
