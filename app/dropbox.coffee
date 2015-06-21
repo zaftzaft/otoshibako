@@ -3,6 +3,7 @@ mkdir = require "./mkdir"
 rename = require "./rename"
 deletef = require "./delete"
 {expand} = require "../lib/paths"
+utils  = require "../lib/utils"
 
 module.exports = (Otoshibako) ->
   menu = (data) ->
@@ -62,21 +63,8 @@ module.exports = (Otoshibako) ->
           is_dir: true
         }
 
-      result = res.contents.reduce (o, a) ->
-        if a.is_dir
-          o.dir.push a
-        else
-          o.file.push a
-        return o
-      , {dir:[], file:[]}
-
-      compare = (a, b) ->
-        if a.path.split("/").pop() > b.path.split("/").pop() then 1 else -1
-      result.dir = result.dir.sort compare
-      result.file = result.file.sort compare
-
-      []
-        .concat result.dir, result.file
+      utils
+        .sort res.contents
         .forEach (a) ->
           name = a.path.split("/").pop()
           if a.is_dir

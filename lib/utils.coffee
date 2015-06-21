@@ -48,8 +48,26 @@ printFormat = (width, name, bytes, modified) ->
     return "#{name} #{right}"
 
 
+sort = (contents) ->
+  result = contents.reduce (o, a) ->
+    if a.is_dir
+      o.dir.push a
+    else
+      o.file.push a
+    return o
+  , {dir:[], file:[]}
+
+  compare = (a, b) ->
+    if a.path.split("/").pop() > b.path.split("/").pop() then 1 else -1
+  result.dir = result.dir.sort compare
+  result.file = result.file.sort compare
+
+  return [].concat result.dir, result.file
+
+
 module.exports = {
   dateFormat: dateFormat
   byteFormat: byteFormat
   printFormat: printFormat
+  sort: sort
 }

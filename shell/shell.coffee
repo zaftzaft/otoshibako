@@ -32,8 +32,13 @@ Shell.mode "more"
 Shell.mode "dropbox"
 Shell.dropbox.cmd "ls", (cb) ->
   ls "/", true, (err, res) ->
-    more (res.contents.map (item) ->
-      utils.printFormat process.stdout.columns, chalk.blue(item.path), item.bytes, item.modified
+    more (utils.sort(res.contents).map (item) ->
+      utils.printFormat(
+        process.stdout.columns,
+        chalk.blue(item.path.split("/").pop()),
+        item.bytes,
+        item.modified
+      )
     ), cb
 
 
