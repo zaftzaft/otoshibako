@@ -33,7 +33,7 @@ Shell.mode "more"
 Shell.mode "dropbox"
 Shell.dropbox.cmd "ls", (cb) ->
   ls "/", true, (err, res) ->
-    more (utils.sort(res.contents).map (item) ->
+    Shell.more (utils.sort(res.contents).map (item) ->
       utils.printFormat(
         process.stdout.columns,
         chalk.blue(item.path.split("/").pop()),
@@ -52,47 +52,7 @@ rl = readline.createInterface
       .filter (c) -> c.indexOf(line) == 0
     return [hits, line]
 
-more = (textAry, cb) ->
-  row = process.stdout.rows
-  if textAry.length > row
-    Shell.chmode "more"
-    do ->
-      index = 0
-      Shell.more.fn = ->
-        textAry
-          .slice index, index + row
-          .forEach (text) ->
-            console.log text
-        index += row
-        if index > textAry.length
-          Shell.more.fn = ->
-          Shell.chmode Shell.before
-          cb null
-    Shell.more.fn()
-  else
-    textAry.forEach (text) ->
-      console.log text
-    cb null
-
-
-decomposer = (line) ->
-  ary = []
-  index = 0
-  f = false
-  i = 0
-  ary[index] = ""
-  while c = line[i++]
-    if c is "\""
-      f = !f
-      continue
-    else if !f and c is " "
-      index++
-      ary[index] = ""
-      continue
-
-    ary[index] += c
-
-  return ary
+require("./utils")(Shell)
 
 
 
@@ -115,7 +75,7 @@ rl.on "line", (cmd) ->
     Shell.more.fn()
     return
 
-  args = decomposer cmd
+  #args = Shell.decomposer cmd
 
   flg = Shell[Shell.current].map.some (obj) ->
     if obj.cmd is cmd
