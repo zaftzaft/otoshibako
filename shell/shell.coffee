@@ -1,5 +1,6 @@
 readline = require "readline"
 chalk    = require "chalk"
+enogu    = require "@zaftzaft/enogu"
 ls       = require "../lib/ls"
 utils    = require "../lib/utils"
 
@@ -45,8 +46,11 @@ Shell.dropbox.cmd "ls", (cb) ->
 rl = readline.createInterface
   input:  process.stdin
   output: process.stdout
-  #completer: (line) ->
-  #  return [["hoge", "fuga"], line]
+  completer: (line) ->
+    hits = Shell[Shell.current].map
+      .map (m) -> m.cmd
+      .filter (c) -> c.indexOf(line) == 0
+    return [hits, line]
 
 more = (textAry, cb) ->
   row = process.stdout.rows
@@ -97,7 +101,7 @@ dropboxDir = "/"
 filerDir = "/"
 updatePrompt = () ->
   rl.setPrompt "#{chalk.gray "[ #{chalk.blue dropboxDir} | #{chalk.green filerDir}]"}
-  \n(#{Shell.current})> "
+  \n#{enogu.white "(#{Shell.current})>"} \x1b[97m"
 
 updatePrompt()
 rl.prompt()
