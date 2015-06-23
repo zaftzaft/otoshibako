@@ -13,6 +13,8 @@ Shell.memory = []
 Shell.pointer = (str) ->
   if str[0] is "@"
     str = Shell.memory[str.slice(1)]
+  return str
+
 Shell.chmode = (name) ->
   if ~Shell.modes.indexOf name
     Shell.before = Shell.current
