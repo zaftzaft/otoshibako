@@ -9,6 +9,7 @@ Shell = {}
 Shell.modes = []
 Shell.before = null
 Shell.current = null
+Shell.memory = []
 Shell.chmode = (name) ->
   if ~Shell.modes.indexOf name
     Shell.before = Shell.current
@@ -23,25 +24,39 @@ Shell.mode = (name) ->
       fn: fn
 
 Shell.mode "global"
-Shell.global.cmd "dropbox", (cb) ->
+Shell.global.cmd "dropbox", (args, cb) ->
   Shell.chmode "dropbox"
   cb null
+Shell.global.cmd "memory", (args, cb) ->
+  Shell.more (Shell.memory.map (item, i) -> "[#{i}] #{item}\n"), cb
+
 Shell.chmode "global"
 
 Shell.mode "more"
 
 Shell.mode "dropbox"
-Shell.dropbox.cmd "ls", (cb) ->
-  ls "/", true, (err, res) ->
-    Shell.more (utils.sort(res.contents).map (item) ->
+Shell.dropbox.cmd "ls", (args, cb) ->
+  Shell.memory = []
+  ls "#{Shell.dropboxDir}", true, (err, res) ->
+    Shell.more (utils.sort(res.contents).map (item, i) ->
+      Shell.memory.push item.path
       utils.printFormat(
         process.stdout.columns,
-        chalk.blue(item.path.split("/").pop()),
+        "#{enogu.cyan "[#{i}]"}#{chalk.blue(item.path.split("/").pop())}",
         item.bytes,
         item.modified
       )
     ), cb
 
+Shell.dropbox.cmd "cd", (args, cb) ->
+  console.log args
+
+Shell.global.cmd "exit", (args, cb) ->
+  Shell.chmode "global"
+  cb null
+
+Shell.dropboxDir = "/"
+Shell.filerDir = "/"
 
 rl = readline.createInterface
   input:  process.stdin
@@ -57,10 +72,8 @@ require("./utils")(Shell)
 
 
 mode = "main" # main, dropbox, filer
-dropboxDir = "/"
-filerDir = "/"
 updatePrompt = () ->
-  rl.setPrompt "#{chalk.gray "[ #{chalk.blue dropboxDir} | #{chalk.green filerDir}]"}
+  rl.setPrompt "#{chalk.gray "[ #{chalk.blue Shell.dropboxDir} | #{chalk.green Shell.filerDir}]"}
   \n#{enogu.white "(#{Shell.current})>"} \x1b[97m"
 
 updatePrompt()
@@ -75,12 +88,20 @@ rl.on "line", (cmd) ->
     Shell.more.fn()
     return
 
-  #args = Shell.decomposer cmd
+  args = Shell.decomposer cmd
+  cmd = args.splice(0, 1)[0]
 
   flg = Shell[Shell.current].map.some (obj) ->
     if obj.cmd is cmd
-      obj.fn resume
+      obj.fn args, resume
       return true
+
+  unless flg
+    flg = Shell["global"].map.some (obj) ->
+      if obj.cmd is cmd
+        obj.fn args, resume
+        return true
+
   unless flg
     console.log "#{cmd}: command not found"
     resume()
