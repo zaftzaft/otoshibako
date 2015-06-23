@@ -7,10 +7,10 @@ module.exports = (Shell) ->
         index = 0
         Shell.more.fn = ->
           textAry
-            .slice index, index + row
+            .slice index, index + row - 1
             .forEach (text) ->
               process.stdout.write text
-          index += row
+          index += row - 1
           if index > textAry.length
             Shell.more.fn = ->
             Shell.chmode Shell.before
