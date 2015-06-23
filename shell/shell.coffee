@@ -1,4 +1,5 @@
 readline = require "readline"
+path     = require "path"
 chalk    = require "chalk"
 enogu    = require "@zaftzaft/enogu"
 ls       = require "../lib/ls"
@@ -39,17 +40,28 @@ Shell.dropbox.cmd "ls", (args, cb) ->
   Shell.memory = []
   ls "#{Shell.dropboxDir}", true, (err, res) ->
     Shell.more (utils.sort(res.contents).map (item, i) ->
+      name = item.path.split("/").pop()
+      if item.is_dir
+        name += "/"
       Shell.memory.push item.path
       utils.printFormat(
         process.stdout.columns,
-        "#{enogu.cyan "[#{i}]"}#{chalk.blue(item.path.split("/").pop())}",
+        "#{enogu.cyan "[#{i}]"}#{chalk.blue(name)}",
         item.bytes,
         item.modified
       )
     ), cb
 
 Shell.dropbox.cmd "cd", (args, cb) ->
-  console.log args
+  dir = args[0]
+  if dir[0] is "@"
+    dir = Shell.memory[dir.slice(1)]
+
+  unless dir
+    return cb "dir not found"
+
+  Shell.dropboxDir = dir
+  cb null
 
 Shell.global.cmd "exit", (args, cb) ->
   Shell.chmode "global"
