@@ -2,7 +2,6 @@ readline = require "readline"
 path     = require "path"
 chalk    = require "chalk"
 enogu    = require "@zaftzaft/enogu"
-ls       = require "../lib/ls"
 utils    = require "../lib/utils"
 
 # Namespace
@@ -11,6 +10,9 @@ Shell.modes = []
 Shell.before = null
 Shell.current = null
 Shell.memory = []
+Shell.pointer = (str) ->
+  if str[0] is "@"
+    str = Shell.memory[str.slice(1)]
 Shell.chmode = (name) ->
   if ~Shell.modes.indexOf name
     Shell.before = Shell.current
@@ -35,37 +37,8 @@ Shell.chmode "global"
 
 Shell.mode "more"
 
-Shell.mode "dropbox"
-Shell.dropbox.cmd "ls", (args, cb) ->
-  Shell.memory = []
-  ls "#{Shell.dropboxDir}", true, (err, res) ->
-    Shell.more (utils.sort(res.contents).map (item, i) ->
-      name = item.path.split("/").pop()
-      if item.is_dir
-        name += "/"
-      Shell.memory.push item.path
-      utils.printFormat(
-        process.stdout.columns,
-        "#{enogu.cyan "[#{i}]"}#{chalk.blue(name)}",
-        item.bytes,
-        item.modified
-      )
-    ), cb
+require("./dropbox")(Shell)
 
-Shell.dropbox.cmd "cd", (args, cb) ->
-  dir = args[0]
-  if dir[0] is "@"
-    dir = Shell.memory[dir.slice(1)]
-
-  unless dir
-    return cb "dir not found"
-
-  Shell.dropboxDir = dir
-  cb null
-
-Shell.global.cmd "exit", (args, cb) ->
-  Shell.chmode "global"
-  cb null
 
 Shell.dropboxDir = "/"
 Shell.filerDir = "/"
@@ -83,7 +56,6 @@ require("./utils")(Shell)
 
 
 
-mode = "main" # main, dropbox, filer
 updatePrompt = () ->
   rl.setPrompt "#{chalk.gray "[ #{chalk.blue Shell.dropboxDir} | #{chalk.green Shell.filerDir}]"}
   \n#{enogu.white "(#{Shell.current})>"} \x1b[97m"
@@ -115,5 +87,6 @@ rl.on "line", (cmd) ->
         return true
 
   unless flg
-    console.log "#{cmd}: command not found"
+    unless cmd.length is 0
+      console.log "#{cmd}: command not found"
     resume()
