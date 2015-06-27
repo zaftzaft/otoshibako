@@ -30,10 +30,20 @@ module.exports = (Shell) ->
 
 
   Shell.dropbox.cmd "mkdir", (args, cb) ->
-    name = Shell.pointer args[0]
-    fp = path.posix.join Shell.dropboxDir, name
+    fp = path.posix.join Shell.dropboxDir, args[0]
     Shell.confirm "create #{fp} dir", ->
       api.createFolder fp, (err, res) ->
+        return cb err if err
+        console.log res
+        cb null
+    , cb
+
+
+  Shell.dropbox.cmd "mv", (args, cb) ->
+    from = Shell.pointer args[0]
+    to = path.posix.join Shell.dropboxDir, args[1]
+    Shell.confirm "#{from} -> #{to}", ->
+      api.move from, to, (err, res) ->
         return cb err if err
         console.log res
         cb null
