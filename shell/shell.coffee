@@ -45,7 +45,7 @@ require("./dropbox")(Shell)
 Shell.dropboxDir = "/"
 Shell.filerDir = "/"
 
-rl = readline.createInterface
+Shell.rl = rl = readline.createInterface
   input:  process.stdin
   output: process.stdout
   completer: (line) ->

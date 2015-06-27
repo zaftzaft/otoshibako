@@ -40,3 +40,12 @@ module.exports = (Shell) ->
       ary[index] += c
 
     return ary
+
+  Shell.confirm = (msg, callback, resume) ->
+    Shell.rl.question "#{msg} (Y/n) : ", (ans) ->
+      ans = ans.toLowerCase()
+      if /^ye?s?$/.test ans
+        callback()
+      else
+        console.log "canceled"
+        resume()
