@@ -65,7 +65,9 @@ updatePrompt = () ->
 updatePrompt()
 rl.prompt()
 
-resume = ->
+resume = (err) ->
+  if err
+    console.log enogu.red "" + err
   updatePrompt()
   rl.prompt()
 
