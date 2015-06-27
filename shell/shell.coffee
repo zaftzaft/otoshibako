@@ -29,18 +29,25 @@ Shell.mode = (name) ->
       fn: fn
 
 Shell.mode "global"
+
 Shell.global.cmd "dropbox", (args, cb) ->
   Shell.chmode "dropbox"
   cb null
+
+Shell.global.cmd "filer", (args, cb) ->
+  Shell.chmode "filer"
+  cb null
+
 Shell.global.cmd "memory", (args, cb) ->
   Shell.more (Shell.memory.map (item, i) -> "[#{i}] #{item}\n"), cb
+
+Shell.global.cmd "exit", (args, cb) ->
+  Shell.chmode "global"
+  cb null
 
 Shell.chmode "global"
 
 Shell.mode "more"
-
-require("./dropbox")(Shell)
-
 
 Shell.dropboxDir = "/"
 Shell.filerDir = "/"
@@ -54,8 +61,10 @@ Shell.rl = rl = readline.createInterface
       .filter (c) -> c.indexOf(line) == 0
     return [hits, line]
 
-require("./utils")(Shell)
 
+require("./utils")(Shell)
+require("./dropbox")(Shell)
+require("./filer")(Shell)
 
 
 updatePrompt = () ->
