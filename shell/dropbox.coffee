@@ -1,7 +1,10 @@
+path     = require "path"
 chalk    = require "chalk"
 enogu    = require "@zaftzaft/enogu"
+api      = require "../lib/api"
 ls       = require "../lib/ls"
 utils    = require "../lib/utils"
+
 module.exports = (Shell) ->
   Shell.mode "dropbox"
 
@@ -24,6 +27,17 @@ module.exports = (Shell) ->
 
   Shell.dropbox.cmd "ls", (args, cb) -> list true, cb
   Shell.dropbox.cmd "fetch", (args, cb) -> list false, cb
+
+
+  Shell.dropbox.cmd "mkdir", (args, cb) ->
+    name = Shell.pointer args[0]
+    fp = path.posix.join Shell.dropboxDir, name
+    Shell.confirm "create #{fp} dir", ->
+      api.createFolder fp, (err, res) ->
+        return cb err if err
+        console.log res
+        cb null
+    , cb
 
 
   Shell.dropbox.cmd "cd", (args, cb) ->
