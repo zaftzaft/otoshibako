@@ -9,6 +9,15 @@ if process.argv[2] is "debug"
   debug = true
   console.log "*** Debug Mode ***"
 
+if process.argv[2] is "cc"
+  fs.readdir paths.cache, (err, links) ->
+    throw err if err
+    links.forEach (name) ->
+      fs.unlinkSync path.join(paths.cache, name)
+    console.log "Cache files cleared."
+  return 0
+
+
 # Check Dir
 base = paths.base
 token = paths.token
