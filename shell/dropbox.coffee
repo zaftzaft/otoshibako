@@ -60,6 +60,3 @@ module.exports = (Shell) ->
     cb null
 
 
-  Shell.global.cmd "exit", (args, cb) ->
-    Shell.chmode "global"
-    cb null
