@@ -30,7 +30,7 @@ module.exports = (Shell) ->
 
         formatted = []
           .concat data.dir, data.file
-          .map (item) ->
+          .map (item, i) ->
             Shell.memory.push path.join(Shell.filerDir, item[0])
             name = item[0]
             if item[1].isDirectory()
@@ -42,7 +42,7 @@ module.exports = (Shell) ->
 
             utils.printFormat(
               process.stdout.columns,
-              name,
+              "[#{i}] #{name}",
               item[1].size,
               item[1].mtime
             )
@@ -56,3 +56,8 @@ module.exports = (Shell) ->
       return cb err if err
       console.log data
       cb null
+
+  Shell.filer.cmd "cd", (args, cb) ->
+    dir = Shell.pointer args[0]
+    Shell.filerDir = dir
+    cb null
