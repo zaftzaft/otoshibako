@@ -92,9 +92,14 @@ module.exports = (Shell) ->
   Shell.filer.cmd "upload", (args, cb) ->
     fp = Shell.filer.resolve args[0]
 
-    Shell.confirm "upload #{fp} to #{Shell.dropboxDir}", ->
-      api.filesPut Shell.dropboxDir, fp, (err, result) ->
-        return cb err if err
-        console.log result
+    fs.lstat fp, (err, stats) ->
+      return cb err if err
+      if stats.isFile()
+        Shell.confirm "upload #{fp} to #{Shell.dropboxDir}", ->
+          api.filesPut Shell.dropboxDir, fp, (err, result) ->
+            return cb err if err
+            console.log result
+            cb null
+        , cb
+      else
         cb null
-    , cb
