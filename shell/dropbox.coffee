@@ -1,11 +1,15 @@
+fs       = require "fs"
 path     = require "path"
 chalk    = require "chalk"
+temp     = require "temp"
 enogu    = require "@zaftzaft/enogu"
 api      = require "../lib/api"
 ls       = require "../lib/ls"
 utils    = require "../lib/utils"
 
 module.exports = (Shell) ->
+  temp.track()
+
   Shell.mode "dropbox"
 
   Shell.dropbox.resolve = (str) ->
@@ -64,5 +68,18 @@ module.exports = (Shell) ->
 
     Shell.dropboxDir = dir
     cb null
+
+
+  Shell.dropbox.cmd "cat", (args, cb) ->
+    fp = Shell.dropbox.resolve args[0]
+    temp.open "otoshibako", (err, info) ->
+      return cb err if err
+      api.files fp, info.path, (->), (err, file) ->
+        return cb err if err
+        console.log file
+        fs.readFile info.path, "utf8", (err, data) ->
+          Shell.buffer.push [fp, info.path]
+          console.log data
+          cb null
 
 
