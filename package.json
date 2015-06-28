@@ -17,6 +17,7 @@
     "chalk": "^1.0.0",
     "director": "^1.2.8",
     "eastasianwidth": "^0.1.0",
-    "request": "^2.49.0"
+    "request": "^2.49.0",
+    "temp": "^0.8.3"
   }
 }
