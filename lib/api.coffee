@@ -56,10 +56,16 @@ API.files = (remote, local, progressCallback, callback) ->
   clen = 1
   filename = remote.split("/").pop()
 
-  ws = fs.createWriteStream path.join(local, filename)
+  st = fs.lstatSync local
+  if st.isFile()
+    location = local
+  else
+    location = path.join local, filename
+
+  ws = fs.createWriteStream location
   ws.on "finish", ->
     do progress
-    callback null, path.join(local, filename)
+    callback null, location
 
   request {
     url: "https://api-content.dropbox.com/1/files/auto/#{fixDir remote}"
