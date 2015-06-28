@@ -1,4 +1,5 @@
 readline = require "readline"
+fs       = require "fs"
 path     = require "path"
 chalk    = require "chalk"
 enogu    = require "@zaftzaft/enogu"
@@ -10,6 +11,7 @@ Shell.modes = []
 Shell.before = null
 Shell.current = null
 Shell.memory = []
+Shell.buffer = []
 Shell.pointer = (str) ->
   if str[0] is "@"
     str = Shell.memory[str.slice(1)]
@@ -40,6 +42,17 @@ Shell.global.cmd "filer", (args, cb) ->
 
 Shell.global.cmd "memory", (args, cb) ->
   Shell.more (Shell.memory.map (item, i) -> "[#{i}] #{item}\n"), cb
+
+Shell.global.cmd "buffer", (args, cb) ->
+  if /^\d+$/.test args[0]
+    unless Shell.buffer[args[0]]
+      return cb "Buffer #{args[0]} is not found"
+    fs.readFile Shell.buffer[args[0]][1], "utf8", (err, data) ->
+      return cb err if err
+      console.log data
+      cb null
+  else
+    Shell.more (Shell.buffer.map (item, i) -> "[#{i}] #{item[0]} -> #{item[1]}"), cb
 
 Shell.global.cmd "exit", (args, cb) ->
   Shell.chmode "global"
