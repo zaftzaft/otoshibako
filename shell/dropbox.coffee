@@ -3,6 +3,7 @@ path     = require "path"
 chalk    = require "chalk"
 temp     = require "temp"
 enogu    = require "@zaftzaft/enogu"
+paths    = require "../lib/paths"
 api      = require "../lib/api"
 ls       = require "../lib/ls"
 utils    = require "../lib/utils"
@@ -83,3 +84,15 @@ module.exports = (Shell) ->
           cb null
 
 
+  download = (remote, local, cb) ->
+    Shell.confirm "Download #{remote} to #{local}", ->
+      api.files remote, local, (->), (err, file) ->
+        return cb err if err
+        console.log "Downloaded #{file}"
+        cb null
+    , cb
+
+  Shell.dropbox.cmd "download", (args, cb) ->
+    download Shell.dropbox.resolve(args[0]), paths.expand("~/Desktop"), cb
+  Shell.dropbox.cmd "get", (args, cb) ->
+    download Shell.dropbox.resolve(args[0]), Shell.filerDir, cb
