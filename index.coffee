@@ -3,10 +3,11 @@ path = require "path"
 auth = require "./lib/auth"
 paths = require "./lib/paths"
 
-debug = false
+# app, shell, cli, debug
+mode = "app"
 
 if process.argv[2] is "debug"
-  debug = true
+  mode = "debug"
   console.log "*** Debug Mode ***"
 
 if process.argv[2] is "cc"
@@ -16,6 +17,10 @@ if process.argv[2] is "cc"
       fs.unlinkSync path.join(paths.cache, name)
     console.log "Cache files cleared."
   return 0
+
+if process.argv[2] is "shell"
+  mode = "shell"
+
 
 
 # Check Dir
@@ -27,7 +32,11 @@ unless fs.existsSync base
   fs.mkdirSync paths.cache
 
 fs.exists token, (exists) ->
-  launcher = -> require "./app/app"
+  launcher = ->
+    if mode is "shell"
+      require "./shell/shell"
+    else
+      require "./app/app"
 
   unless exists
     auth (err, result) ->
