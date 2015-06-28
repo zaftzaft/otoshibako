@@ -41,7 +41,7 @@ printFormat = (width, name, bytes, modified) ->
     )
 
     if len > w
-      name = "#{name.slice(0, w - 2)}.."
+      name = "#{name.slice(0, w - 3)}.."
     else
       name = name + new Array(w - len).join " "
 
