@@ -7,6 +7,11 @@ utils = require "../lib/utils"
 module.exports = (Shell) ->
   Shell.mode "filer"
   Shell.filerDir = paths.expand "~"
+  Shell.filer.resolve = (str) ->
+    if str[0] is "@"
+      Shell.pointer str
+    else
+      path.join Shell.filerDir, str
 
   Shell.filer.cmd "ls", (args, cb) ->
     Shell.memory = []
@@ -51,13 +56,34 @@ module.exports = (Shell) ->
 
 
   Shell.filer.cmd "cat", (args, cb) ->
-    fp = Shell.pointer args[0]
+    fp = Shell.filer.resolve args[0]
     fs.readFile fp, "utf8", (err, data) ->
       return cb err if err
       console.log data
       cb null
 
+
   Shell.filer.cmd "cd", (args, cb) ->
-    dir = Shell.pointer args[0]
+    dir = Shell.filer.resolve args[0]
     Shell.filerDir = dir
     cb null
+
+
+  Shell.filer.cmd "st", (args, cb) ->
+    fp = Shell.filer.resolve args[0]
+
+    fs.lstat fp, (err, stats) ->
+      return cb err if err
+      console.log fp
+      console.log [
+        "isFile: " + stats.isFile()
+        "isDirectory: "+ stats.isDirectory()
+        "isBlockDevice: " + stats.isBlockDevice()
+        "isCharacterDevice: " + stats.isCharacterDevice()
+        "isSymbolicLink: " + stats.isSymbolicLink()
+        "isFIFO: " + stats.isFIFO()
+        "isSocket: " + stats.isSocket()
+      ].join "\n"
+      console.log stats
+      cb null
+
