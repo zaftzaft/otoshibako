@@ -96,3 +96,14 @@ module.exports = (Shell) ->
     download Shell.dropbox.resolve(args[0]), paths.expand("~/Desktop"), cb
   Shell.dropbox.cmd "get", (args, cb) ->
     download Shell.dropbox.resolve(args[0]), Shell.filerDir, cb
+
+
+  Shell.dropbox.cmd "rm", (args, cb) ->
+    fp = Shell.dropbox.resolve args[0]
+    Shell.confirm "Delete #{fp}", ->
+      api.delete fp, (err, result) ->
+        return cb err if err
+        console.log result
+        cb null
+    , cb
+
