@@ -35,6 +35,11 @@ module.exports = (Shell) ->
             name = item[0]
             if item[1].isDirectory()
               name += "/"
+
+            name = name
+              .replace "{", "{$"
+              .replace "}", "$}"
+
             utils.printFormat(
               process.stdout.columns,
               name,
@@ -42,3 +47,12 @@ module.exports = (Shell) ->
               item[1].mtime
             )
         Shell.more formatted, cb
+
+
+
+  Shell.filer.cmd "cat", (args, cb) ->
+    fp = Shell.pointer args[0]
+    fs.readFile fp, "utf8", (err, data) ->
+      return cb err if err
+      console.log data
+      cb null
