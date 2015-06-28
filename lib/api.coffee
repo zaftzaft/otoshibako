@@ -75,7 +75,7 @@ API.files = (remote, local, progressCallback, callback) ->
 
 API.filesPut = (to, from, callback) ->
   to = to.slice 1 if to[0] is "/"
-  to = path.join to, from.split("/").pop()
+  to = path.posix.join to, path.basename(from)
   to = fixDir to
   fs.exists from, (exists) ->
     return callback "File not found" unless exists
