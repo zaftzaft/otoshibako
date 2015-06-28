@@ -8,6 +8,12 @@ utils    = require "../lib/utils"
 module.exports = (Shell) ->
   Shell.mode "dropbox"
 
+  Shell.dropbox.resolve = (str) ->
+    if str[0] is "@"
+      Shell.pointer str
+    else
+      path.posix.join Shell.dropboxDir, str
+
   list = (useCache, cb) ->
     Shell.memory = []
     ls "#{Shell.dropboxDir}", useCache, (err, res) ->
@@ -40,7 +46,7 @@ module.exports = (Shell) ->
 
 
   Shell.dropbox.cmd "mv", (args, cb) ->
-    from = Shell.pointer args[0]
+    from = Shell.dropbox.resolve args[0]
     to = path.posix.join Shell.dropboxDir, args[1]
     Shell.confirm "#{from} -> #{to}", ->
       api.move from, to, (err, res) ->
@@ -51,7 +57,7 @@ module.exports = (Shell) ->
 
 
   Shell.dropbox.cmd "cd", (args, cb) ->
-    dir = Shell.pointer args[0]
+    dir = Shell.dropbox.resolve args[0]
 
     unless dir
       return cb "dir not found"
