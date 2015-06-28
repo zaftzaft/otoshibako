@@ -1,6 +1,7 @@
 fs    = require "fs"
 path  = require "path"
 async = require "async"
+api   = require "../lib/api"
 paths = require "../lib/paths"
 utils = require "../lib/utils"
 
@@ -87,3 +88,13 @@ module.exports = (Shell) ->
       console.log stats
       cb null
 
+
+  Shell.filer.cmd "upload", (args, cb) ->
+    fp = Shell.filer.resolve args[0]
+
+    Shell.confirm "upload #{fp} to #{Shell.dropboxDir}", ->
+      api.filesPut Shell.dropboxDir, fp, (err, result) ->
+        return cb err if err
+        console.log result
+        cb null
+    , cb
