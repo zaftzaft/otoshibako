@@ -19,6 +19,7 @@ module.exports = (Shell) ->
     else
       textAry.forEach (text) ->
         process.stdout.write text
+      process.stdout.write "\n"
       cb null
 
 

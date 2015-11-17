@@ -17,6 +17,16 @@ module.exports = (Shell) ->
   Shell.filer.cmd "ls", (args, cb) ->
     Shell.memory = []
     fs.readdir Shell.filerDir, (err, links) ->
+      result = links.map (item, i) ->
+        Shell.memory.push path.join(Shell.filerDir, item)
+        "#{i}:#{item}"
+
+      console.log result.join "  "
+      cb null
+
+  Shell.filer.cmd "ll", (args, cb) ->
+    Shell.memory = []
+    fs.readdir Shell.filerDir, (err, links) ->
       async.map links, (item, callback) ->
         fs.lstat path.join(Shell.filerDir, item), callback
       , (err, results) ->
