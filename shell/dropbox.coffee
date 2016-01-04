@@ -1,6 +1,5 @@
 fs       = require "fs"
 path     = require "path"
-chalk    = require "chalk"
 temp     = require "temp"
 enogu    = require "@zaftzaft/enogu"
 paths    = require "../lib/paths"
@@ -22,14 +21,19 @@ module.exports = (Shell) ->
   list = (useCache, cb) ->
     Shell.memory = []
     ls "#{Shell.dropboxDir}", useCache, (err, res) ->
-      Shell.more (utils.sort(res.contents).map (item, i) ->
+      Shell.more (utils.sort(res.contents).map (item, i, ary) ->
+        Shell.memory.push item.path
         name = item.path.split("/").pop()
         if item.is_dir
           name += "/"
-        Shell.memory.push item.path
+
+        margin = new Array(
+          ("" + ary.length).length - ("" + i).length + 1
+        ).join " "
+
         utils.printFormat(
           process.stdout.columns,
-          "#{enogu.cyan "[#{i}]"}#{chalk.blue(name)}",
+          "#{enogu.cyan "[#{i}]"}#{margin} #{enogu.blue name}",
           item.bytes,
           item.modified
         )

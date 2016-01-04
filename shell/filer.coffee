@@ -1,6 +1,7 @@
 fs    = require "fs"
 path  = require "path"
 async = require "async"
+enogu = require "@zaftzaft/enogu"
 api   = require "../lib/api"
 paths = require "../lib/paths"
 utils = require "../lib/utils"
@@ -46,11 +47,15 @@ module.exports = (Shell) ->
 
         formatted = []
           .concat data.dir, data.file
-          .map (item, i) ->
+          .map (item, i, ary) ->
             Shell.memory.push path.join(Shell.filerDir, item[0])
             name = item[0]
             if item[1].isDirectory()
               name += "/"
+
+            margin = new Array(
+              ("" + ary.length).length - ("" + i).length + 1
+            ).join " "
 
             name = name
               .replace "{", "{$"
@@ -58,7 +63,7 @@ module.exports = (Shell) ->
 
             utils.printFormat(
               process.stdout.columns,
-              "[#{i}] #{name}",
+              "#{enogu.cyan "[#{i}]"}#{margin} #{enogu.blue name}",
               item[1].size,
               item[1].mtime
             )
