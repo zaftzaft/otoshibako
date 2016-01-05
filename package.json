@@ -1,6 +1,6 @@
 {
   "name": "otoshibako",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Dropbox TUI App",
   "main": "index.coffee",
   "scripts": {
