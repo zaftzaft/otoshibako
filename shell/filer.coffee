@@ -27,7 +27,10 @@ module.exports = (Shell) ->
 
   Shell.filer.cmd "ll", (args, cb) ->
     Shell.memory = []
+
     fs.readdir Shell.filerDir, (err, links) ->
+      return cb err if err
+
       async.map links, (item, callback) ->
         fs.lstat path.join(Shell.filerDir, item), callback
       , (err, results) ->
@@ -79,8 +82,22 @@ module.exports = (Shell) ->
       cb null
 
 
+  Shell.filer.oldDir = null
   Shell.filer.cmd "cd", (args, cb) ->
-    dir = Shell.filer.resolve args[0]
+    if args[0] is "-"
+
+      if Shell.filer.oldDir
+        dir = Shell.filer.oldDir
+      else
+        return cb "oldDir not set"
+
+    else
+      dir = Shell.filer.resolve args[0]
+
+    unless dir
+      return cb "Resolved to fail"
+
+    Shell.filer.oldDir = Shell.filerDir
     Shell.filerDir = dir
     cb null
 
