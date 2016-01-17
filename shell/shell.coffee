@@ -21,14 +21,30 @@ Shell.chmode = (name) ->
   if ~Shell.modes.indexOf name
     Shell.before = Shell.current
     Shell.current = name
+
+
 Shell.mode = (name) ->
   Shell.modes.push name
   Shell[name] = {}
   Shell[name].map = []
+
   Shell[name].cmd = (cmd, fn) ->
     Shell[name].map.push
       cmd: cmd
       fn: fn
+
+  Shell[name].alias = (alias, cmd) ->
+    aliasFn = null
+
+    return unless Shell[name].map.some (obj) ->
+      if obj.cmd is cmd
+        aliasFn = obj.fn
+        return true
+
+    Shell[name].map.push
+      cmd: alias
+      fn: aliasFn
+
 
 Shell.mode "global"
 

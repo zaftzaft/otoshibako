@@ -43,6 +43,8 @@ module.exports = (Shell) ->
   Shell.dropbox.cmd "ls", (args, cb) -> list true, cb
   Shell.dropbox.cmd "fetch", (args, cb) -> list false, cb
 
+  Shell.dropbox.alias "ll", "ls"
+
 
   Shell.dropbox.cmd "mkdir", (args, cb) ->
     fp = path.posix.join Shell.dropboxDir, args[0]
@@ -56,7 +58,7 @@ module.exports = (Shell) ->
 
   Shell.dropbox.cmd "mv", (args, cb) ->
     from = Shell.dropbox.resolve args[0]
-    to = path.posix.join Shell.dropboxDir, args[1]
+    to = path.posix.join Shell.dropboxDir, Shell.dropbox.resolve args[1]
     Shell.confirm "#{from} -> #{to}", ->
       api.move from, to, (err, res) ->
         return cb err if err
